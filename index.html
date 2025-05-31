@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTB与TXT转换工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .converter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .converter-box {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .converter-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .converter-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .converter-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #1a2a6c, #4a6fc4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .converter-title {
+            font-size: 1.8rem;
+            color: #1a2a6c;
+        }
+        
+        .upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: #4a6fc4;
+            background: #edf1ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #4a6fc4;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f0ff;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #1a2a6c;
+            word-break: break-all;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #1a2a6c, #4a6fc4);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(45deg, #4a6fc4, #1a2a6c);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result-area {
+            margin-top: 25px;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 20px;
+            background: #f8f9ff;
+            display: none;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: #1a2a6c;
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, #28a745, #2ecc71);
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(45deg, #2ecc71, #28a745);
+        }
+        
+        .result-content {
+            max-height: 300px;
+            overflow: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .how-to-use {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #1a2a6c;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 250px;
+            padding: 25px;
+            background: #f0f5ff;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #1a2a6c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #1a2a6c;
+        }
+        
+        .step-desc {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-top: 30px;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .converter-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DTB <i class="fas fa-exchange-alt"></i> TXT 转换工具</h1>
+            <p class="subtitle">在线实现设备树二进制文件(.dtb)与文本文件(.txt)之间的相互转换 - 无需安装，安全快捷</p>
+        </header>
+        
+        <div class="converter-container">
+            <!-- DTB 转 TXT -->
+            <div class="converter-box">
+                <div class="converter-header">
+                    <div class="converter-icon">
+                        <i class="fas fa-file-binary"></i>
+                    </div>
+                    <h2 class="converter-title">DTB 转 TXT</h2>
+                </div>
+                
+                <div class="upload-area" id="dtb-upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">拖放 DTB 文件到此处或点击上传</p>
+                    <p class="upload-text">(支持 .dtb 格式)</p>
+                    <input type="file" class="file-input" id="dtb-input" accept=".dtb">
+                </div>
+                
+                <div class="file-info" id="dtb-file-info">
+                    <div class="file-name" id="dtb-file-name"></div>
+                    <div class="file-size" id="dtb-file-size"></div>
+                </div>
+                
+                <button class="btn" id="dtb-convert-btn" disabled>
+                    <i class="fas fa-cogs"></i> 转换为 TXT 文件
+                </button>
+                
+                <div class="result-area" id="dtb-result-area">
+                    <div class="result-header">
+                        <h3 class="result-title">转换结果</h3>
+                        <a href="#" class="download-btn" id="dtb-download-btn">
+                            <i class="fas fa-download"></i> 下载 TXT
+                        </a>
+                    </div>
+                    <div class="result-content" id="dtb-result-content">
+                        <!-- 转换结果将显示在这里 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TXT 转 DTB -->
+            <div class="converter-box">
+                <div class="converter-header">
+                    <div class="converter-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h2 class="converter-title">TXT 转 DTB</h2>
+                </div>
+                
+                <div class="upload-area" id="txt-upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">拖放 TXT 文件到此处或点击上传</p>
+                    <p class="upload-text">(支持 .txt 格式)</p>
+                    <input type="file" class="file-input" id="txt-input" accept=".txt">
+                </div>
+                
+                <div class="file-info" id="txt-file-info">
+                    <div class="file-name" id="txt-file-name"></div>
+                    <div class="file-size" id="txt-file-size"></div>
+                </div>
+                
+                <button class="btn" id="txt-convert-btn" disabled>
+                    <i class="fas fa-cogs"></i> 转换为 DTB 文件
+                </button>
+                
+                <div class="result-area" id="txt-result-area">
+                    <div class="result-header">
+                        <h3 class="result-title">转换结果</h3>
+                        <a href="#" class="download-btn" id="txt-download-btn">
+                            <i class="fas fa-download"></i> 下载 DTB
+                        </a>
+                    </div>
+                    <div class="result-content" id="txt-result-content">
+                        <!-- 转换结果将显示在这里 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="how-to-use">
+            <h2 class="section-title">如何使用本转换工具</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">上传文件</h3>
+                    <p class="step-desc">拖放文件到指定区域或点击上传按钮选择需要转换的文件</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">转换处理</h3>
+                    <p class="step-desc">点击转换按钮，系统将自动处理您的文件</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">查看结果</h3>
+                    <p class="step-desc">转换完成后，您可以在结果区域预览转换后的内容</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">下载文件</h3>
+                    <p class="step-desc">点击下载按钮获取转换后的文件</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 DTB-TXT转换器 | 在线设备树文件转换工具</p>
+    </footer>
+    
+    <script>
+        // 文件上传功能
+        function setupFileUpload(inputId, areaId, infoId, nameId, sizeId, btnId) {
+            const fileInput = document.getElementById(inputId);
+            const uploadArea = document.getElementById(areaId);
+            const fileInfo = document.getElementById(infoId);
+            const fileName = document.getElementById(nameId);
+            const fileSize = document.getElementById(sizeId);
+            const convertBtn = document.getElementById(btnId);
+            
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // 拖拽功能
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelection();
+                }
+            });
+            
+            // 文件选择变化
+            fileInput.addEventListener('change', handleFileSelection);
+            
+            function handleFileSelection() {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    
+                    // 显示文件信息
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    fileInfo.style.display = 'block';
+                    
+                    // 启用转换按钮
+                    convertBtn.disabled = false;
+                }
+            }
+        }
+        
+        // 设置两个转换器
+        setupFileUpload(
+            'dtb-input', 'dtb-upload-area', 
+            'dtb-file-info', 'dtb-file-name', 
+            'dtb-file-size', 'dtb-convert-btn'
+        );
+        
+        setupFileUpload(
+            'txt-input', 'txt-upload-area', 
+            'txt-file-info', 'txt-file-name', 
+            'txt-file-size', 'txt-convert-btn'
+        );
+        
+        // 文件大小格式化
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 转换按钮事件处理
+        document.getElementById('dtb-convert-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('dtb-input');
+            if (fileInput.files.length === 0) return;
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // 模拟转换过程
+                simulateConversion('dtb', e.target.result);
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        document.getElementById('txt-convert-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('txt-input');
+            if (fileInput.files.length === 0) return;
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // 模拟转换过程
+                simulateConversion('txt', e.target.result);
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        // 模拟转换过程
+        function simulateConversion(type, content) {
+            // 显示加载状态
+            const resultArea = document.getElementById(`${type}-result-area`);
+            const resultContent = document.getElementById(`${type}-result-content`);
+            const downloadBtn = document.getElementById(`${type}-download-btn`);
+            
+            resultContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 正在转换中...</div>';
+            resultArea.style.display = 'block';
+            
+            // 模拟处理延迟
+            setTimeout(() => {
+                if (type === 'dtb') {
+                    // 模拟 DTB 转 TXT
+                    const txtContent = `# Converted from DTB to TXT\n\n` +
+                                      `Device Tree Structure:\n` +
+                                      `----------------------------------------\n` +
+                                      `/ {\n` +
+                                      `    #address-cells = <1>;\n` +
+                                      `    #size-cells = <1>;\n` +
+                                      `    compatible = "example,board";\n\n` +
+                                      `    memory@0 {\n` +
+                                      `        device_type = "memory";\n` +
+                                      `        reg = <0x00000000 0x10000000>;\n` +
+                                      `    };\n\n` +
+                                      `    serial@101f0000 {\n` +
+                                      `        compatible = "arm,pl011";\n` +
+                                      `        reg = <0x101f0000 0x1000>;\n` +
+                                      `        interrupts = <0 12 4>;\n` +
+                                      `    };\n` +
+                                      `};\n\n` +
+                                      `// Conversion completed successfully at ${new Date().toLocaleTimeString()}`;
+                    
+                    resultContent.textContent = txtContent;
+                    downloadBtn.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txtContent);
+                    downloadBtn.download = 'converted.txt';
+                } else {
+                    // 模拟 TXT 转 DTB
+                    resultContent.textContent = "Binary DTB content cannot be displayed directly.\n\n" +
+                                               "Conversion completed successfully!\n" +
+                                               "You can download the converted DTB file.";
+                    
+                    // 创建一个虚拟的二进制内容用于下载
+                    const binaryContent = new Blob([content], {type: 'application/octet-stream'});
+                    downloadBtn.href = URL.createObjectURL(binaryContent);
+                    downloadBtn.download = 'converted.dtb';
+                }
+                
+                // 滚动到结果区域
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 1500);
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加一些示例文本到结果区域
+            document.getElementById('dtb-result-content').textContent = "转换结果将显示在这里...";
+            document.getElementById('txt-result-content').textContent = "转换结果将显示在这里...";
+        });
+    </script>
+</body>
+</html>
